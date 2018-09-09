@@ -1,9 +1,24 @@
 const { test } = require('tap')
+const nock = require('nock')
+
 const Cloud = require('../')
 
 // common data
 const appleId = 'test@example.com'
 const password = 'MySecurePassword123!'
+const dsInfo = {
+  dsid: 'testing123',
+  firstName: 'Test',
+  lastName: 'Person'
+}
+const webservices = {
+  reminders: {
+    url: 'https://reminders.icloud.com'
+  }
+}
+const testReminders = [{
+  title: 'Complete writing tests'
+}]
 
 test('Requires options argument to create instance', (t) => {
   t.plan(1)
@@ -21,24 +36,57 @@ test('Cloud constructor takes appleId, password options', (t) => {
 })
 
 test('#login', async (t) => {
-  t.plan(2)
+  t.plan(3)
+
+  nock('https://setup.icloud.com')
+    .post('/setup/ws/1/accountLogin', (body) => body.apple_id && body.password)
+    .reply(200, {
+      dsInfo,
+      webservices
+    }, {
+      'Set-Cookie': 'Secure, HttpOnly,'
+    })
 
   const cloud = new Cloud({ appleId, password })
 
   const user = await cloud.login()
 
-  t.deepEquals(user, {}, 'returns user data')
+  t.deepEquals(user, dsInfo, 'returns user data')
   t.deepEquals(cloud.user, user, 'user data set on instance')
+  t.deepEquals(cloud.services, webservices, 'icloud services list set on instance')
 })
 
-test('#reminders - login if no user data', async (t) => {
+test('#login - throws an error is response status is not 200', async (t) => {
   t.plan(1)
+
+  nock('https://setup.icloud.com')
+    .post('/setup/ws/1/accountLogin', (body) => body.apple_id && body.password)
+    .reply(404, 'User not found')
 
   const cloud = new Cloud({ appleId, password })
 
-  cloud.login = async () => t.pass('login was called')
+  t.rejects(cloud.login, 'Response 404 - User not found')
+})
 
-  await cloud.reminders()
+test('#reminders - login if no user data', async (t) => {
+  t.plan(2)
+
+  const cloud = new Cloud({ appleId, password })
+
+  cloud.login = async () => {
+    t.pass('login was called')
+
+    cloud.user = dsInfo
+    cloud.services = webservices
+
+    nock(webservices.reminders.url)
+      .get(`/rd/startup?${cloud.params()}`)
+      .reply(200, testReminders)
+  }
+
+  const reminders = await cloud.reminders()
+
+  t.deepEquals(reminders, testReminders, 'returns reminder data')
 })
 
 test('#reminders - do not login if user data, returns reminder data', async (t) => {
@@ -46,10 +94,26 @@ test('#reminders - do not login if user data, returns reminder data', async (t) 
 
   const cloud = new Cloud({ appleId, password })
 
-  cloud.user = { username: 'Test' }
+  cloud.user = dsInfo
+  cloud.services = webservices
   cloud.login = async () => t.fail('login was called')
+
+  nock(webservices.reminders.url)
+    .get(`/rd/startup?${cloud.params()}`)
+    .reply(200, testReminders)
 
   const reminders = await cloud.reminders()
 
-  t.deepEquals(reminders, [], 'returns reminder data')
+  t.deepEquals(reminders, testReminders, 'returns reminder data')
+})
+
+test('#reminders - throw error if reminders are not supported', async (t) => {
+  t.plan(1)
+
+  const cloud = new Cloud({ appleId, password })
+
+  cloud.user = dsInfo
+  cloud.services = {}
+
+  t.rejects(cloud.reminders, 'This iCloud account does not support reminders')
 })

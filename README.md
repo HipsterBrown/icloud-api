@@ -2,6 +2,8 @@
 
 Manage iCloud login and reminders with JavaScript!
 
+**Two-Factor Auth accounts are not currently supported**
+
 Example:
 
 ```node

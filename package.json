@@ -12,7 +12,8 @@
   "author": "HipsterBrown",
   "license": "MIT",
   "dependencies": {
-    "isomorphic-unfetch": "^2.1.1"
+    "isomorphic-unfetch": "^2.1.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "nock": "^9.6.1",

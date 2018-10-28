@@ -12,12 +12,16 @@ class Cloud {
     Object.assign(this, { appleId, password })
 
     this.user = null
-    this.services = null
+    this.services = {}
 
     this.cookies = []
   }
 
   async login () {
+    if (this.user) {
+      return this.user
+    }
+
     const accountResponse = await fetch(ICLOUD_ACCOUNT_URI, {
       method: 'POST',
       headers: this.headers(),

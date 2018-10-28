@@ -81,10 +81,10 @@ test('#reminders - login if no user data', async (t) => {
 
     nock(webservices.reminders.url)
       .get(`/rd/startup?${cloud.params()}`)
-      .reply(200, testReminders)
+      .reply(200, { Reminders: testReminders })
   }
 
-  const reminders = await cloud.reminders()
+  const { reminders } = await cloud.reminders()
 
   t.deepEquals(reminders, testReminders, 'returns reminder data')
 })
@@ -100,9 +100,9 @@ test('#reminders - do not login if user data, returns reminder data', async (t) 
 
   nock(webservices.reminders.url)
     .get(`/rd/startup?${cloud.params()}`)
-    .reply(200, testReminders)
+    .reply(200, { Reminders: testReminders })
 
-  const reminders = await cloud.reminders()
+  const { reminders } = await cloud.reminders()
 
   t.deepEquals(reminders, testReminders, 'returns reminder data')
 })

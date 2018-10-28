@@ -19,6 +19,9 @@ const webservices = {
 const testReminders = [{
   title: 'Complete writing tests'
 }]
+const newReminder = {
+  title: 'Create a new reminder to complete this library'
+}
 
 test('Requires options argument to create instance', (t) => {
   t.plan(1)
@@ -116,4 +119,31 @@ test('#reminders - throw error if reminders are not supported', async (t) => {
   cloud.services = {}
 
   t.rejects(cloud.reminders, 'This iCloud account does not support reminders')
+})
+
+test('#createReminder', async (t) => {
+  t.plan(1)
+
+  const updatedReminders = testReminders.concat({
+    ...newReminder,
+    pGuid: 'tasks'
+  })
+  const cloud = new Cloud({ appleId, password })
+
+  cloud.user = dsInfo
+  cloud.services = webservices
+
+  nock(webservices.reminders.url)
+    .post(`/rd/reminders/tasks?${cloud.params()}`)
+    .reply(200, {
+      ChangeSet: {
+        inserts: {
+          Reminders: updatedReminders
+        }
+      }
+    })
+
+  const reminders = await cloud.createReminder(newReminder)
+
+  t.deepEquals(reminders, updatedReminders, 'returns latest reminders data')
 })

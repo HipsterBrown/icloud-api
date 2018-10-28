@@ -45,18 +45,21 @@ class Cloud {
     return this.user
   }
 
+  /*
+   * returns object with incomplete reminders and collections
+   */
   async reminders () {
     if (!this.user) {
       await this.login()
     }
 
-    // create helper for this formatting
-    const service = this.services.reminders
+    const { reminders: service } = this.services
 
     if (!service) {
       throw new Error('This iCloud account does not support reminders')
     }
 
+    // create helper for this formatting
     const serviceUrl = url.parse(service.url)
     serviceUrl.pathname = '/rd/startup'
     serviceUrl.search = this.params()
@@ -68,8 +71,16 @@ class Cloud {
     })
 
     try {
-      const data = await response.clone().json()
-      return data
+      const { Collections, Reminders } = await response.clone().json()
+      return {
+        collections: Collections,
+        reminders: Reminders
+      }
+    } catch (_) {
+      const text = await response.text()
+      throw new Error(`Response ${response.status}: ${text}`)
+    }
+  }
     } catch (_) {
       const text = await response.text()
       throw new Error(`Response ${response.status}: ${text}`)

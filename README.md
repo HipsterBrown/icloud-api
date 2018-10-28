@@ -19,8 +19,13 @@ const cloud = new Cloud({ appleId: /* user apple ID */, password: /* user iCloud
   // user data available as a property after login
   console.log(cloud.user);
 
-  // get all reminders, will login automatically if needed
-  const reminders = await cloud.reminders()
-  console.log(reminders);
+  // get all incomplete reminders and parent collections, will login automatically if needed
+  const remindersAndCollections = await cloud.reminders()
+  console.log(remindersAndCollections);
+
+  // when creating a reminder, the latest list of reminders is returned
+  const reminder = { title: 'My new reminder' };
+  const latestReminders = await cloud.createReminder(reminder);
+  console.log(latestReminders);
 })();
 ```

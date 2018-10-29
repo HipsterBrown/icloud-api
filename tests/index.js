@@ -147,3 +147,33 @@ test('#createReminder', async (t) => {
 
   t.deepEquals(reminders, updatedReminders, 'returns latest reminders data')
 })
+
+test('#updateReminder', async (t) => {
+  t.plan(1)
+
+  const updatedReminders = testReminders.concat({
+    ...newReminder,
+    pGuid: 'tasks'
+  })
+  const cloud = new Cloud({ appleId, password })
+
+  cloud.user = dsInfo
+  cloud.services = webservices
+
+  nock(webservices.reminders.url)
+    .post(`/rd/reminders/tasks?${cloud.params()}`)
+    .reply(200, {
+      ChangeSet: {
+        inserts: {
+          Reminders: updatedReminders
+        }
+      }
+    })
+
+  const reminders = await cloud.updateReminder({
+    ...newReminder,
+    guid: 'test'
+  })
+
+  t.deepEquals(reminders, updatedReminders, 'returns latest reminders data')
+})

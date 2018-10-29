@@ -4,6 +4,10 @@ Manage iCloud login and reminders with JavaScript!
 
 **Two-Factor Auth accounts are not currently supported**
 
+**Supported Features:**
+- login
+- reminder management
+
 Example:
 
 ```node
@@ -36,3 +40,11 @@ const cloud = new Cloud({ appleId: /* user apple ID */, password: /* user iCloud
   console.log(updatedReminders);
 })();
 ```
+
+### Prior Art
+
+Implementation inspired by [`ruby-icloud`](https://github.com/adammck/ruby-icloud)
+
+### Disclaimer
+
+iCloud is a property of Apple and they might do whatever they want with it, anytime. Use this - unofficial - module accordingly.

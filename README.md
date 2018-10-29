@@ -27,5 +27,12 @@ const cloud = new Cloud({ appleId: /* user apple ID */, password: /* user iCloud
   const reminder = { title: 'My new reminder' };
   const latestReminders = await cloud.createReminder(reminder);
   console.log(latestReminders);
+
+  // update the first reminder as complete
+  const updatedReminders = await cloud.updateReminder({
+    ...latestReminders[0],
+    completedDate: Cloud.formatICloudDate(new Date())
+  });
+  console.log(updatedReminders);
 })();
 ```

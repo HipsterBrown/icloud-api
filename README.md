@@ -8,10 +8,16 @@ Manage iCloud login and reminders with JavaScript!
 - login
 - reminder management
 
+Install:
+
+```
+npm install node-icloud-api
+```
+
 Example:
 
 ```node
-const Cloud = require('icloud-api')
+const Cloud = require('node-icloud-api')
 const cloud = new Cloud({ appleId: /* user apple ID */, password: /* user iCloud password */ })
 
 // "top-level" await

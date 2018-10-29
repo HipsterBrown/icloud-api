@@ -9,6 +9,22 @@ const uuid = require('uuid/v1')
 const ICLOUD_ACCOUNT_URI = 'https://setup.icloud.com/setup/ws/1/accountLogin'
 
 class Cloud {
+  /*
+   * returns a date formatted for icloud storage
+   */
+  static formatICloudDate (date) {
+    const value = new Array(7)
+    value[1] = date.getUTCFullYear()
+    value[2] = date.getUTCMonth() + 1
+    value[3] = date.getUTCDate()
+    value[4] = date.getUTCHours()
+    value[5] = date.getUTCMinutes()
+    value[6] = date.getUTCSeconds()
+    value[0] = Number(value.slice(1, 4).join(''))
+
+    return value
+  }
+
   constructor ({ appleId, password }) {
     Object.assign(this, { appleId, password })
 
@@ -89,9 +105,9 @@ class Cloud {
    *   - description (string)
    *   - guid (string|number): automatically generated if not provided
    *   - pGuid (string|number): guid of the parent Collection, defaults to 'tasks'
-   *   - dueDate (string)
+   *   - dueDate (Array): date formatted for icloud, using formatICloudDate
    *   - dueDateIsAllDay (boolean)
-   *   - startDate (string)
+   *   - startDate (Array): date formatted for icloud, using formatICloudDate
    *   - startDateIsAllDay (boolean)
    *   - priority (number: 1-9)
    * returns the updated list of reminders

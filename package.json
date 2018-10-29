@@ -1,10 +1,12 @@
 {
   "name": "icloud-api",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "description": "Manage iCloud login and reminders with JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "standard && node tests | tap-spec"
+    "test": "standard && node tests | tap-spec",
+    "semantic-release": "semantic-release",
+    "travis-deploy-once": "travis-deploy-once"
   },
   "keywords": [
     "icloud"
@@ -19,6 +21,12 @@
     "nock": "^9.6.1",
     "standard": "^12.0.1",
     "tap": "^12.0.1",
-    "tap-spec": "^5.0.0"
+    "tap-spec": "^5.0.0",
+    "semantic-release": "^15.10.6",
+    "travis-deploy-once": "^5.0.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HipsterBrown/icloud-api.git"
   }
 }

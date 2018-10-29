@@ -158,6 +158,66 @@ class Cloud {
     }
   }
 
+  /*
+   * reminder (Object):
+   *   - guid (string) (required): unique identifier for the reminder
+   *   - title (string): the name of the reminder
+   *   - description (string)
+   *   - guid (string|number): automatically generated if not provided
+   *   - pGuid (string|number): guid of the parent Collection, defaults to 'tasks'
+   *   - dueDate (Array): date formatted for icloud, using formatICloudDate
+   *   - dueDateIsAllDay (boolean)
+   *   - startDate (Array): date formatted for icloud, using formatICloudDate
+   *   - startDateIsAllDay (boolean)
+   *   - priority (number: 1-9)
+   *   - completedDate (Array): date formatted for icloud, using formatICloudDate
+   * returns the updated list of reminders
+   */
+  async updateReminder (reminder) {
+    if (!this.user) {
+      await this.login()
+    }
+
+    const { reminders: service } = this.services
+
+    if (!service) {
+      throw new Error('This iCloud account does not support reminders')
+    }
+
+    const serviceUrl = url.parse(service.url)
+    serviceUrl.pathname = `/rd/reminders/${reminder.pGuid || 'tasks'}`
+    serviceUrl.search = this.params()
+    delete serviceUrl.host
+    delete serviceUrl.port
+
+    // not including ClientState leads to success but no response ChangeSet
+    const response = await fetch(url.format(serviceUrl), {
+      method: 'POST',
+      headers: this.headers({ methodOverride: 'PUT' }),
+      body: JSON.stringify({
+        'Reminders': {
+          pGuid: 'tasks',
+          ...reminder
+        },
+        'ClientState': {}
+      })
+    })
+
+    try {
+      const {
+        ChangeSet: {
+          inserts: {
+            Reminders
+          }
+        }
+      } = await response.clone().json()
+      return Reminders
+    } catch (_) {
+      const text = await response.text()
+      throw new Error(`Response ${response.status}: ${text}`)
+    }
+  }
+
   headers (custom = {}) {
     return {
       ...custom,

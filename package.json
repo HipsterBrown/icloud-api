@@ -1,5 +1,5 @@
 {
-  "name": "icloud-api",
+  "name": "node-icloud-api",
   "version": "0.0.0-development",
   "description": "Manage iCloud login and reminders with JavaScript",
   "main": "index.js",
